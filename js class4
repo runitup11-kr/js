@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button id="btn">ON</button>
+    <script>
+        function makeToggleHandler(){
+
+            let flag = true;
+            //버튼 클릭 시
+            // on이면 off로
+            // off이면 on으로
+            return function(){
+                flag = !flag;
+
+                btn.textContent = flag ? 'ON' : 'OFF';
+                btn.style.backgroundColor = flag ? 'gray' : 'blue';
+            };
+        }
+        const btn = document.getElementById('btn');
+        btn.addEventListener('click',makeToggleHandler());
+    </script>
+</body>
+</html>
