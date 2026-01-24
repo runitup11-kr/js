@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>DOM CRUD</h2>
+
+    
+    <input id="txt" type="text" placeholder="할 일을 입력">
+    <button id="btnAdd">추가</button>
+    <ul id="list"></ul>
+
+    <script>
+        const txt = document.getElementById("txt");
+        const btnAdd = document.getElementById("btnAdd");
+        const list = document.getElementById("list");
+
+        function createItem(text){
+            const li = document.createElement("li");
+
+            const span = document.createElement("span");
+            span.textContent = text; // span태그 안에 글자를 넣겠다
+                                    // 순수 문자열
+
+            const input = document.createElement("input"); // 수정 할 때 쓰는 입력창
+            input.type = "text"; //문자열 입력 선언
+            input.value = text; // 인풋 안에 기본값을 넣겠다
+            input.style.display = "none"; // 화면에서 안보이게 숨긴다
+
+            //버튼 요소를 만든다 html로 치면 <button>수정</button>이런 느낌
+            const btnEdit = document.createElement("button");
+            btnEdit.textContent = "수정";
+
+            const btnSave = document.createElement("button");
+            btnSave.textContent = "저장";
+            btnSave.style.display = "none";
+
+            const btnCancel = document.createElement("button");
+            btnCancel.textContent = "취소";
+            btnCancel.style.display = "none";
+
+            const btnDel = document.createElement("button");
+            btnDel.textContent = "삭제";
+
+            const btnDone = document.createElement("button");
+            btnDone.textContent = "완료!";
+
+            let prevText = text;
+            let isDone = false; // 이 li가 완료 상태인지 아닌지 기억하는 변수
+
+            function enterEditMode(){
+                prevText = span.textContent;
+                input.value = prevText;
+
+                span.style.display = "none";
+                input.style.display = "";
+
+                btnEdit.style.display = "none"; // 수정 숨기기
+                btnSave.style.display = "";
+                btnCancel.style.display = "";
+
+                btnDel.disabled = true; // 수정 중 삭제 못하게
+                btnDone.disabled = true;
+
+                input.focus(); // 커서 자동 이동
+                input.select(); // 글자 전체 선택
+            }
+            function exitEditMode(){
+                span.style.display = "";
+                input.style.display = "none";
+
+                btnEdit.style.display = "";
+                btnSave.style.display = "none";
+                btnCancel.style.display = "none";
+
+                btnDel.disabled = false;
+                btnDone.disabled = false;
+            }
+            btnEdit.addEventListener("click",enterEditMode); // 버튼을 누르면 수정 함수를 실행해라
+
+            btnSave.addEventListener("click",() =>{
+                const value = input.value.trim();
+                if(!value) return; // 공백값이면 저장 금지
+                span.textContent = value; // 화면에 보이는 span값이 input에 쓴 값으로 바뀜
+                exitEditMode(); // 종료
+            });
+
+            btnCancel.addEventListener("click", () =>{ // 취소 버튼을 클릭했을때
+                                                    //안에 코드들을 실행하겠다
+                span.textContent = prevText; // 취소 했을때 원래 기본 값을 다시 불러오기
+                exitEditMode(); // 종료
+            });
+            btnDel.addEventListener("click", () => li.remove()); //삭제 버튼을 클릭하면
+                                                                // Dom에서 삭제해라
+            input.addEventListener("keydown", (e)=>{ // event객체
+                if (e.key === "Enter") btnSave.click();
+                if (e.key === "Escape") btnCancel.click();
+            });
+            btnDone.addEventListener("click", () =>{
+                isDone = !isDone; // 현재 false 상태를 true 상태로 바꿈
+
+                span.style.textDecoration = isDone ? "line-through" : "";
+                btnDone.textContent = isDone? "완료취소" : "완료";
+            });
+            // 지금까지 만든 버튼 / 기능을 보여주기
+            li.appendChild(span);
+            li.appendChild(input);
+            li.appendChild(document.createTextNode(" "));
+            li.appendChild(btnEdit);
+            li.appendChild(btnSave);
+            li.appendChild(btnCancel);
+            li.appendChild(btnDel);
+            li.appendChild(btnDone);
+
+            return li;
+        }   
+        btnAdd.addEventListener("click", () => {
+            const value = txt.value.trim();
+            if (!value) return;
+
+            list.appendChild(createItem(value)); // li를 새로 생성
+            // 완성된 li로 반환
+            // <ul id = list> 리스트 추가
+
+            txt.value = "";
+            txt.focus();
+        });
+
+        txt.addEventListener("keydown",(e) => {
+            if (e.key === "Enter") btnAdd.click();
+        });
+    </script>
+</body>
+</html>
