@@ -1,0 +1,17 @@
+class car {
+    model = undefined;
+    constructor(argModel){this.model = argModel;}
+    prtModel(){
+        console.log(this.model);
+    }
+}
+
+
+// 메서드 호출
+car1= new car("y"); 
+car1.prtModel();
+
+//함수만 뽑아낸거임 객체 정보는 안따라옴
+//해결 할려면 bind로 this 고정
+const encar = car1.prtModel;
+encar();
