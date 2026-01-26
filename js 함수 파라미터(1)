@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width= , initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="alert-box" id="alert">
+        <p>Alert 박스</p>
+        <button onclick="알림창열기('none');">닫기</button>
+    </div>
+    <button onclick="알림창열기('block');">열기</button>
+
+    <script>
+
+        function 알림창열기(ㅎㅇ){
+            document.getElementById('alert').style.display = ㅎㅇ;
+        };
+
+        알림창열기('block');
+        알림창열기('none');
+
+        function plus(uuu){
+            2 + uuu
+        }
+        plus(1); // uuu 자리에 1 넣어서 더하기
+        plus(2); // uuu 자리에 2 넣어서 더하기
+        plus(3);
+    </script>
+    
+</body>
+</html>
