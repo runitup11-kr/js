@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    function makerIncrease(){
+        let count = 0;
+        
+        return function() {
+            conunt++;
+        console.log(conunt);
+        };
+    
+    }
+    setTimeout(makerIncrease(),1000); // 1
+    setTimeout(makerIncrease(),2000); // 2초뒤에 2
+    setTimeout(makerIncrease(),3000); // 3초뒤에 3
+    </script>
+    
+</body>
+</html>
