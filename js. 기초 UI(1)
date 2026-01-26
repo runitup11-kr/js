@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="alert-box" id="alert">
+        <p id="title">Alert 박스</p>
+        <button onclick="알림창열기('none');">X</button>
+    </div>
+        <button onclick="idopen()">버튼1</button>
+        <button onclick="pwopen()">버튼2</button>
+    <style>
+        .alert-box{
+            background: rgb(132, 132, 185);
+            color: rgb(132, 132, 180);
+            padding: 20px;
+            border-radius: 20px;
+            display: none;
+        }
+    </style>
+
+
+    <script>
+        function idopen(){
+            document.getElementById('title').innerHTML = '아이디를 입력하세요';
+            document.getElementById('alert').style.display = 'block';
+            document.getElementById('title').style.color = 'red'
+        }
+
+        function pwopen(){
+            document.getElementById('title').innerHTML = '비밀번호를 입력하세요';
+            document.getElementById('alert').style.display = 'block';
+            document.getElementById('title').style.color = 'red'
+        }
+
+
+        function 알림창열기(ㅁㅁㅁ){
+            document.getElementById('alert').style.display = ㅁㅁㅁ;
+        }
+    </script>
+</body>
+</html>
