@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+    <input type="number" id="counter" placeholder="0">
+    <button id="btn1">Start</button>
+<body>
+    <script>
+        const counter = document.getElementById("counter");
+        const button = document.getElementById("btn1");
+        let cnt = 0;
+        let timerId = null; // 타이머 꺼져있음
+
+        function test(){
+            if(timerId === null){
+                button.textContent = "Stop";
+                timerId = setInterval(()=>{
+                    cnt++;
+                    counter.value = cnt;
+                },1000)
+            } else{
+                clearInterval(timerId);
+                timerId = null;
+                button.textContent = "Start";
+            }
+        }
+
+            button.addEventListener('click', test);
+
+    // let cnt = 0;
+    // function myCounter(){
+    //     cnt++;
+    //     console.log(cnt);
+
+    //     if(cnt == 10){
+    //         clearInterval(timerId);
+    //         console.log("terminated");
+    //     }
+    // }
+    // let timerId = setInterval(myCounter,1000);
+    </script>
+    
+</body>
+</html>
