@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+    <input type="number" id="counter" placeholder="0">
+    <button id="btn1">Start</button>
+<body>
+    <script>
+        const counter = document.getElementById("counter");
+        const btn = document.getElementById("btn1");
+
+        function makerCounter(btn,out){
+            let count = 0;
+            let timerId = null;
+
+        return function(){
+            if(timerId === null){
+                timerId = setInterval(function(){
+                    count++;
+                    out.value = count;
+                },1000)
+                btn.textContent = "Stop";
+            }else{
+                clearInterval(timerId);
+                timerId = null;
+                btn.textContent = "Start";
+            }
+        }
+
+    }
+        btn.addEventListener("click",makerCounter(btn,counter));
+    </script>
