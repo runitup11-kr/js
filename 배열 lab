@@ -1,0 +1,36 @@
+
+
+
+
+
+// input : fn
+// output : fn
+
+let myList = [10,20,30,40];
+
+//현재 배열의 값 화면 출력
+// 10 20 30 40 
+for(let i = 0 ; i < myList.length; i ++){
+    console.log(myList[i]);
+}
+
+// 각 배열의 원소에 1을 더하기(배열 내 원소값 변경)
+// 11 21 31 41 
+for(let i = 0 ; i < myList.length ; i ++){
+    myList[i] = myList[i] + 1;
+}
+
+//현재 배열의 값 화면 출력
+// 11 21 31 41 
+console.log(myList);
+
+// 각 배열의 원소에 2 더하기 (배열 내 원소값 변경)
+// 13 23 33 43 
+for(let i = 0 ; i < myList.length ; i ++){
+    myList[i] = myList[i] + 2;
+}
+
+//현재 배열의 값 화면 출력
+// 13 23 33 43 
+console.log(myList);
+
