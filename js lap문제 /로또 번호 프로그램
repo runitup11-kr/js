@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로또 번호 맞추기 - 실습</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 20px auto; padding: 20px; }
+        h1 { text-align: center; }
+
+        .grid { display: grid; grid-template-columns: repeat(5, 50px) 80px; gap: 5px; margin: 20px 0; }
+        .grid input { width: 50px; height: 40px; text-align: center; font-size: 16px; }
+        .grid .count { line-height: 40px; text-align: center; font-weight: bold; }
+
+        .match { background: #ffeb3b; color: #d32f2f; font-weight: bold; }
+
+        button { display: block; margin: 20px auto; padding: 15px 30px; font-size: 18px;
+                 background: #4a90d9; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #357abd; }
+
+        .result { text-align: center; margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+        .result .numbers { font-size: 24px; font-weight: bold; color: #d32f2f; }
+        .row-label { line-height: 40px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>로또 번호 맞추기</h1>
+
+    <!-- 5x5 입력 그리드가 생성될 영역 -->
+    <div id="grid" ></div>
+
+    <!-- 버튼 클릭 시 generateLotto() 함수 호출 -->
+    <button onclick="generateLotto()">로또 번호 생성</button>
+
+    <!-- 당첨 번호 결과 표시 영역 (초기에는 숨김) -->
+    <div class="result" id="result" style="display: none;">
+        <p>당첨 번호</p>
+        <p class="numbers" id="lottoNumbers"></p>
+    </div>
+
+    <script>
+        // ============================================================
+        // 로또 번호 맞추기 프로그램 - 실습
+        // ============================================================
+        //
+        // [프로그램 구조]
+        //
+        //   ┌─────────────────────────────────────────────────┐
+        //   │  1행  [__] [__] [__] [__] [__]  │ 맞춘개수      │
+        //   │  2행  [__] [__] [__] [__] [__]  │ 맞춘개수      │
+        //   │  3행  [__] [__] [__] [__] [__]  │ 맞춘개수      │
+        //   │  4행  [__] [__] [__] [__] [__]  │ 맞춘개수      │
+        //   │  5행  [__] [__] [__] [__] [__]  │ 맞춘개수      │
+        //   ├─────────────────────────────────────────────────┤
+        //   │           [ 로또 번호 생성 버튼 ]                │
+        //   ├─────────────────────────────────────────────────┤
+        //   │  당첨 번호: 3, 12, 18, 25, 37, 42               │
+        //   └─────────────────────────────────────────────────┘
+        //
+        // [프로그램 흐름]
+        //
+        //   1. 페이지 로드
+        //         ↓
+        //   2. createGrid() 호출 → 5x5 입력 그리드 생성
+        //         ↓
+        //   3. 사용자가 각 칸에 1-45 사이의 숫자 입력
+        //         ↓
+        //   4. "로또 번호 생성" 버튼 클릭 → generateLotto() 호출
+        //         ↓
+        //   5. 로또 번호 6개 생성 (1-45 중 중복 없이)
+        //         ↓
+        //   6. 각 행별로 입력값과 로또 번호 비교
+        //         ↓
+        //   7. 일치하면 노란색 하이라이트 + 개수 카운트
+        //
+        // ============================================================
+
+
+        // ------------------------------------------------------------
+        // 상수 정의
+        // ------------------------------------------------------------
+        const ROWS = 5;  // 행 개수
+        const COLS = 5;  // 열 개수
+        const grid = document.getElementById('grid');  // 그리드 컨테이너
+
+
+        // ============================================================
+        // 함수 1: createGrid() - 5x5 입력 그리드 생성
+        // ============================================================
+        //
+        // [기능]
+        // - 5개의 행을 생성
+        // - 각 행에: 행 라벨(1행, 2행...) + 입력필드 5개 + 맞춘개수 표시
+        //
+        // [사용할 메서드]
+        // - document.createElement('태그명') : 요소 생성
+        // - element.className = '클래스명' : 클래스 설정
+        // - element.textContent = '텍스트' : 텍스트 설정
+        // - element.id = 'id값' : id 설정
+        // - parent.appendChild(child) : 자식 요소 추가
+        //
+        // ============================================================
+        function createGrid() {
+
+
+            // [Step 1] 행(row) 반복: 0부터 4까지 (총 5행)
+            for (let row = 0; row < ROWS; row++) {
+
+
+                // ─────────────────────────────────
+                // [Step 2] 행 라벨 생성 ("1행", "2행"...)
+                // ─────────────────────────────────
+                // TODO: div 요소 생성하여 label 변수에 저장
+                const label = document.createElement('div');
+                // TODO: label의 className을 'row-label'로 설정
+                label.className = 'row-label';
+                // TODO: label의 textContent를 `${row + 1}행` 형식으로 설정
+                label.textContent = `${row + 1}행`;
+                // TODO: grid에 label 추가 (appendChild)
+                grid.appendChild(label);
+
+                // ─────────────────────────────────
+                // [Step 3] 입력 필드 5개 생성
+                // ─────────────────────────────────
+                for (let col = 0; col < COLS; col++) {
+                    // TODO: input 요소 생성
+                    const input = document.createElement('input');
+                    // TODO: input.type을 'number'로 설정
+                    input.type = 'number';
+                    // TODO: input.min을 1로, input.max를 45로 설정
+                    input.min = 1;
+                    input.max = 45;
+                    // TODO: input.id를 `cell-${row}-${col}` 형식으로 설정
+                    //       예: cell-0-0, cell-0-1, cell-1-0 ...
+                    input.id = `cell-${row}-${col}`;
+                    // TODO: grid에 input 추가
+                    grid.appendChild(input);
+
+                }
+
+                // ─────────────────────────────────
+                // [Step 4] 맞춘 개수 표시 영역 생성
+                // ─────────────────────────────────
+                // TODO: div 요소 생성하여 count 변수에 저장
+                const count = document.createElement('div');
+                // TODO: count의 className을 'count'로 설정
+                count.className = 'count';
+                // TODO: count의 id를 `count-${row}` 형식으로 설정
+                count.id = `count-${row}`;
+                // TODO: count의 textContent를 '-'로 초기화
+                count.textContent = '';
+                // TODO: grid에 count 추가
+                grid.appendChild(count);
+            }
+        }
+
+
+        // ============================================================
+        // 함수 2: generateLotto() - 로또 번호 생성 및 비교
+        // ============================================================
+        //
+        // [기능]
+        // - 1-45 중 중복 없이 6개의 로또 번호 생성
+        // - 각 행의 입력값과 로또 번호 비교
+        // - 일치하는 숫자에 하이라이트 적용
+        // - 각 행별 맞춘 개수 표시
+        //
+        // [사용할 메서드]
+        // - Math.random() : 0~1 사이 난수
+        // - Math.floor() : 소수점 버림
+        // - array.includes(value) : 배열에 값 포함 여부
+        // - array.push(value) : 배열에 값 추가
+        // - array.sort((a,b) => a-b) : 오름차순 정렬
+        // - array.join(', ') : 배열을 문자열로 연결
+        // - element.classList.add/remove('클래스') : 클래스 추가/제거
+        // - parseInt(문자열) : 문자열을 정수로 변환
+        //
+        // ============================================================
+        function generateLotto() {
+
+            // ─────────────────────────────────
+            // [Step 1] 이전 결과 초기화
+            // ─────────────────────────────────
+            // 모든 input 요소에서 'match' 클래스를 제거하여
+            // 이전에 하이라이트된 셀을 원래대로 되돌림
+
+            // TODO: querySelectorAll로 모든 input 선택 후 forEach로 순회
+            //       각 input에서 classList.remove('match') 호출
+                const classList = document.querySelectorAll('input').forEach(input =>{
+                    input.classList.remove('match');
+                });
+    
+
+            // ─────────────────────────────────
+            // [Step 2] 로또 번호 생성 (1-45 중 6개, 중복 없이)
+            // ─────────────────────────────────
+            const lottoNumbers = [];
+
+            // TODO: lottoNumbers.length가 6보다 작은 동안 반복 (while문)
+                while (lottoNumbers.length < 6){
+
+                // TODO: 1-45 사이의 랜덤 숫자 생성
+                //       힌트: Math.floor(Math.random() * 45) + 1
+                    const num = Math.floor(Math.random() * 45) + 1;
+
+                // TODO: 중복 체크 - lottoNumbers에 num이 없으면 추가
+                //       힌트: if (!lottoNumbers.includes(num))
+                if(!lottoNumbers.includes(num)){
+                    lottoNumbers.push(num);
+                }
+
+            }
+            // TODO: 로또 번호 오름차순 정렬
+            //       힌트: lottoNumbers.sort((a, b) => a - b)
+                lottoNumbers.sort((a , b) => a - b);
+
+                console.log(lottoNumbers);
+
+            // ─────────────────────────────────
+            // [Step 3] 당첨 번호 화면에 표시
+            // ─────────────────────────────────
+            // TODO: id가 'result'인 요소의 style.display를 'block'으로 변경
+                document.getElementById('result').style.display = 'block';
+
+            // TODO: id가 'lottoNumbers'인 요소의 textContent에
+            //       lottoNumbers.join(', ') 결과 설정
+                document.getElementById('lottoNumbers').textContent = lottoNumbers.join(',');
+
+
+            // ─────────────────────────────────
+            // [Step 4] 각 행별로 입력값과 로또 번호 비교
+            // ─────────────────────────────────
+            for (let row = 0; row < ROWS; row++) {
+
+                let matchCount = 0;        // 이 행에서 맞춘 개수
+                const rowNumbers = [];     // 이 행의 숫자들 (중복 체크용)
+
+                // 각 열(col) 순회
+                for (let col = 0; col < COLS; col++) {
+
+                    // TODO: id가 `cell-${row}-${col}`인 input 요소 가져오기
+                        const input = document.getElementById(`cell-${row}-${col}`);
+
+                    // TODO: input.value를 parseInt로 정수 변환하여 value에 저장
+                        const value = parseInt(input.value);
+
+                    // ─────────────────────────────────
+                    // [Step 5] 유효성 검사 (1-45 사이인 경우만 처리)
+                    // ─────────────────────────────────
+                    if (value >= 1 && value <= 45) {
+                        if(rowNumbers.includes(value)){
+                            alert(`${row + 1}행에 중복된 숫자 (${value})가 있습니다!`)
+                            return;
+                        }
+
+                        // TODO: 행 내 중복 체크
+                        //       rowNumbers에 value가 이미 있으면
+                        //       alert로 경고 메시지 출력 후 return
+                        //       힌트: `${row + 1}행에 중복된 숫자(${value})가 있습니다!`
+
+
+                        // TODO: rowNumbers에 value 추가
+                        rowNumbers.push(value);
+
+                        // ─────────────────────────────────
+                        // [Step 6] 로또 번호와 일치 여부 확인
+                        // ─────────────────────────────────
+                        // TODO: lottoNumbers에 value가 포함되어 있으면
+                        //       input에 'match' 클래스 추가
+                        //       matchCount 1 증가
+                        if(lottoNumbers.includes(value)){
+                            input.classList.add('match');
+                            matchCount += 1
+                        }
+
+                    }
+                }
+
+                // ─────────────────────────────────
+                // [Step 7] 맞춘 개수 표시
+                // ─────────────────────────────────
+                // TODO: id가 `count-${row}`인 요소의 textContent에
+                //       `${matchCount}개` 설정
+                    document.getElementById(`count-${row}`).textContent = `${matchCount}개`;
+            }
+        }
+
+
+        // ============================================================
+        // 프로그램 시작: 페이지 로드 시 그리드 생성
+        // ============================================================
+        createGrid();
+
+    </script>
+</body>
+</html>
