@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가위바위보 게임</title>
+    <style>
+        /* ========== 기본 스타일 ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        /* ========== 타이틀 ========== */
+        .title {
+            text-align: center;
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        /* ========== 카드 공통 스타일 ========== */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        /* ========== 게임 컨트롤 버튼 ========== */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .controls img {
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+
+        .controls img:hover { transform: scale(1.05); }
+
+        /* ========== 선택 버튼 (가위/바위/보) ========== */
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .choice {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 15px;
+            border: 3px solid transparent;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .choice:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .choice.selected {
+            border-color: #667eea;
+            background: #e8eaff;
+        }
+
+        .choice img { width: 100px; height: 100px; }
+
+        /* ========== 대결 영역 ========== */
+        .battle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .player {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .player h3 { font-size: 1.4rem; margin-bottom: 10px; }
+
+        /* 점수 표시 배지 */
+        .score {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: #6c757d;
+        }
+
+        .score.win  { background: #28a745; }
+        .score.lose { background: #dc3545; }
+        .score.draw { background: #ffc107; color: #333; }
+
+        /* 선택 이미지 표시 영역 */
+        .display {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px dashed #dee2e6;
+            font-size: 4rem;
+            color: #dee2e6;
+        }
+
+        .display img { max-width: 160px; max-height: 160px; }
+
+        /* ========== 결과 텍스트 ========== */
+        .result {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .result.win  { color: #28a745; }
+        .result.lose { color: #dc3545; }
+        .result.draw { color: #ffc107; }
+
+        /* ========== 타이머 ========== */
+        .timer {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #dc3545;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">가위바위보 게임</h1>
+
+        <!-- 게임 시작/종료 버튼 -->
+        <div class="controls">
+            <img src="../img/gamestart.jpg" width="150" height="80" alt="게임 시작" onclick="game.start()">
+            <img src="../img/finishgame.jpg" width="150" height="80" alt="게임 종료" onclick="game.stop()">
+        </div>
+
+        <!-- 가위/바위/보 선택 영역 -->
+        <div class="card">
+            <p style="margin-bottom: 15px; font-size: 1.1rem;">가위, 바위, 보 중 하나를 선택하세요!</p>
+            <div class="choices">
+                <div class="choice" onclick="game.play('scissors')">
+                    <img src="../img/human_scissors.gif" alt="가위">
+                </div>
+                <div class="choice" onclick="game.play('rock')">
+                    <img src="../img/human_rock.gif" alt="바위">
+                </div>
+                <div class="choice" onclick="game.play('paper')">
+                    <img src="../img/human_paper.gif" alt="보">
+                </div>
+            </div>
+        </div>
+
+        <!-- 대결 화면: 사용자 vs 컴퓨터 -->
+        <div class="battle">
+            <!-- 사용자 영역 -->
+            <div class="player">
+                <h3>사용자</h3>
+                <div class="score" id="humanScore">0승 0무 0패</div>
+                <div class="display" id="humanDisplay">?</div>
+            </div>
+
+            <!-- VS 이미지 -->
+            <img src="../img/vs.gif" width="100" alt="VS">
+
+            <!-- 컴퓨터 영역 -->
+            <div class="player">
+                <h3>컴퓨터</h3>
+                <div class="score" id="computerScore">0승 0무 0패</div>
+                <div class="display" id="computerDisplay">?</div>
+            </div>
+        </div>
+
+        <!-- 결과 표시 -->
+        <div class="card">
+            <div class="result" id="result">게임 시작 버튼을 눌러주세요!</div>
+        </div>
+
+        <!-- 타이머 -->
+        <div class="card">
+            <div class="timer" id="timer">00:00:00</div>
+        </div>
+    </div>
+
+    <script>
+        /*
+         * ╔══════════════════════════════════════════════════════════════════╗
+         * ║                    가위바위보 게임 실습                            ║
+         * ╠══════════════════════════════════════════════════════════════════╣
+         * ║  학습 목표:                                                       ║
+         * ║  1. 객체(Object)를 활용한 상태 관리                               ║
+         * ║  2. 조건문을 이용한 승패 판정 로직                                ║
+         * ║  3. Math.random()을 이용한 랜덤 선택                              ║
+         * ║  4. setInterval/clearInterval을 이용한 타이머                    ║
+         * ║  5. DOM 조작 (getElementById, innerHTML, classList)              ║
+         * ╚══════════════════════════════════════════════════════════════════╝
+         */
+
+        const game = {
+            /*
+             * ┌─────────────────────────────────────────────────────────────┐
+             * │  [실습 1] 게임 상태 변수 선언                                │
+             * │                                                             │
+             * │  아래 변수들은 게임의 현재 상태를 저장합니다.                │
+             * │  각 변수의 역할을 이해하고 초기값을 확인하세요.              │
+             * └─────────────────────────────────────────────────────────────┘
+             */
+            isRunning: false,                              // 게임 진행 중 여부 (true/false)
+            humanScore: { win: 0, draw: 0, lose: 0 },      // 사용자 점수 객체
+            computerScore: { win: 0, draw: 0, lose: 0 },   // 컴퓨터 점수 객체
+            timerId: null,                                 // 타이머 ID (setInterval 반환값)
+            seconds: 0,                                    // 경과 시간 (초 단위)
+
+
+            /*
+             * ┌─────────────────────────────────────────────────────────────┐
+             * │  [실습 2] 게임 시작 함수                                     │
+             * │                                                             │
+             * │  게임 시작 버튼을 클릭하면 호출됩니다.                       │
+             * │  해야 할 일:                                                 │
+             * │  1. isRunning을 true로 설정                                  │
+             * │  2. 점수와 시간을 0으로 초기화                               │
+             * │  3. 화면 초기화 함수들 호출                                  │
+             * │  4. setInterval로 타이머 시작 (1초마다 updateTimer 호출)     │
+             * └─────────────────────────────────────────────────────────────┘
+             */
+            start() {
+                this.isRunning = true;
+                // TODO: 게임 상태를 '진행 중'으로 변경하세요
+                // 힌트: this.isRunning = ???;
+
+
+                // TODO: 점수 객체를 초기화하세요 (win, draw, lose 모두 0으로)
+                this.humanScore = {win: 0 , draw: 0, lose: 0};
+                this.computerScore = {win: 0, draw: 0, lose: 0};
+                // 힌트: this.humanScore = { win: 0, draw: 0, lose: 0 };
+
+
+                // TODO: 경과 시간을 0으로 초기화하세요
+                this.seconds = 0;
+
+                // 화면 초기화 (이 부분은 완성되어 있습니다)
+                this.updateScore('human');
+                this.updateScore('computer');
+                this.resetDisplay();
+                this.showResult('가위, 바위, 보를 선택하세요!');
+
+                // TODO: 기존 타이머가 있으면 정지하세요
+                // 힌트: clearInterval(this.timerId);
+                clearInterval(this.timerId);
+
+
+                // TODO: 새 타이머를 시작하세요 (1초 = 1000ms 마다 updateTimer 호출)
+                // 힌트: this.timerId = setInterval(() => this.updateTimer(), ???);
+                this.timerId = setInterval(() => this.updateTimer(),1000);
+            },
+
+
+            /*
+             * ┌─────────────────────────────────────────────────────────────┐
+             * │  [실습 3] 게임 종료 함수                                     │
+             * │                                                             │
+             * │  게임 종료 버튼을 클릭하면 호출됩니다.                       │
+             * │  해야 할 일:                                                 │
+             * │  1. isRunning을 false로 설정                                 │
+             * │  2. clearInterval로 타이머 정지                              │
+             * │  3. 최종 승패 결과 계산 후 화면에 표시                       │
+             * └─────────────────────────────────────────────────────────────┘
+             */
+            stop() {
+                // TODO: 게임 상태를 '정지'로 변경하세요
+                this.isRunning = false;
+
+                // TODO: 타이머를 정지하세요
+                // 힌트: clearInterval(???);
+                clearInterval(this.timerId);
+
+                // 최종 결과 계산 (구조 분해 할당으로 점수 가져오기)
+                const { win, draw, lose } = this.humanScore;
+                let message, resultClass;
+
+                // TODO: 승패에 따라 message와 resultClass를 설정하세요
+                // 조건:
+                //   - win > lose 이면: message = '승리!', resultClass = 'win'
+                //   - win < lose 이면: message = '패배...', resultClass = 'lose'
+                //   - 그 외(무승부): message = '무승부!', resultClass = 'draw'
+                // 힌트: if-else if-else 문을 사용하세요
+                if(win > lose){
+                    message = '승리!';
+                    resultClass = 'win';
+                }else if(win < lose){
+                    message = '패배...';
+                    resultClass = 'lose';
+                }else{
+                    message = '무승부!';
+                    resultClass = 'draw';
+                }
+
+
+                // 결과 화면에 표시
+                this.showResult(`게임 종료! ${message} (${win}승 ${draw}무 ${lose}패)`, resultClass);
+            },
+
+
+            /*
+             * ┌─────────────────────────────────────────────────────────────┐
+             * │  [실습 4] 한 판 진행 함수 (핵심!)                            │
+             * │                                                             │
+             * │  사용자가 가위/바위/보를 클릭하면 호출됩니다.                 │
+             * │  매개변수 humanChoice: 'scissors', 'rock', 'paper' 중 하나   │
+             * │                                                             │
+             * │  처리 순서:                                                  │
+             * │  1. 게임이 시작되지 않았으면 안내 메시지 표시 후 종료          │
+             * │  2. 컴퓨터의 선택을 랜덤으로 결정                             │
+             * │  3. 양쪽 선택을 화면에 표시                                   │
+             * │  4. 승패 판정                                                │
+             * │  5. 점수 업데이트                                            │
+             * │  6. 결과 화면에 표시                                         │
+             * └─────────────────────────────────────────────────────────────┘
+             */
+            play(humanChoice) {
+                // 게임이 시작되지 않았으면 안내 메시지 표시 후 종료
+                if (!this.isRunning) {
+                    this.showResult('먼저 게임 시작 버튼을 눌러주세요!');
+                    return;
+                }
+
+                /*
+                 * TODO: 컴퓨터의 선택을 랜덤으로 결정하세요
+                 *
+                 * choices 배열에서 랜덤하게 하나를 선택해야 합니다.
+                 *
+                 * 힌트:
+                 *   - Math.random()은 0 이상 1 미만의 소수를 반환합니다
+                 *   - Math.floor()는 소수점 이하를 버립니다
+                 *   - 배열의 길이가 3이면, 인덱스는 0, 1, 2 중 하나여야 합니다
+                 *   - Math.floor(Math.random() * 3)은 0, 1, 2 중 하나를 반환합니다
+                 */
+                const choices = ['scissors', 'rock', 'paper'];
+                const computerChoice = choices[Math.floor(Math.random() * 3)]; // TODO: 랜덤 선택 구현
+                
+
+                // 선택 이미지를 화면에 표시 (이 부분은 완성되어 있습니다)
+                this.showChoice('human', humanChoice);
+                this.showChoice('computer', computerChoice);
+                this.highlightChoice(humanChoice);
+
+                // 승패 판정
+                const result = this.judge(humanChoice, computerChoice);
+
+                /*
+                 * TODO: 점수를 업데이트하세요
+                 *
+                 * result 값에 따라 점수를 증가시켜야 합니다.
+                 * result는 'win', 'lose', 'draw' 중 하나입니다.
+                 *
+                 * 힌트:
+                 *   - this.humanScore[result]++ 형태로 점수를 증가시킬 수 있습니다
+                 *   - 컴퓨터 점수는 사용자와 반대입니다 (사용자 win = 컴퓨터 lose)
+                 */
+                // TODO: 사용자 점수 증가
+                // 힌트: this.humanScore[result]++;
+                this.humanScore[result]++;
+
+
+                // 컴퓨터는 반대 결과 적용 (win↔lose, draw는 동일)
+                const opposite = { win: 'lose', lose: 'win', draw: 'draw' };
+                // TODO: 컴퓨터 점수 증가
+                // 힌트: this.computerScore[opposite[result]]++;
+                this.computerScore[opposite[result]]++;
+
+
+                // 화면 업데이트 (이 부분은 완성되어 있습니다)
+                this.updateScore('human', result);
+                this.updateScore('computer', opposite[result]);
+
+                const messages = { win: '승리!', lose: '패배...', draw: '무승부!' };
+                this.showResult(messages[result], result);
+            },
+
+
+            /*
+             * ┌─────────────────────────────────────────────────────────────┐
+             * │  [실습 5] 승패 판정 함수                                     │
+             * │                                                             │
+             * │  사용자와 컴퓨터의 선택을 비교하여 승패를 결정합니다.        │
+             * │  반환값: 'win' (사용자 승), 'lose' (사용자 패), 'draw' (무승부)│
+             * │                                                             │
+             * │  가위바위보 규칙:                                            │
+             * │    - 가위(scissors)는 보(paper)를 이깁니다                   │
+             * │    - 바위(rock)는 가위(scissors)를 이깁니다                  │
+             * │    - 보(paper)는 바위(rock)를 이깁니다                       │
+             * │    - 같으면 무승부입니다                                     │
+             * └─────────────────────────────────────────────────────────────┘
+             */
+            judge(human, computer) {
+                // TODO: 같은 것을 냈으면 무승부를 반환하세요
+                // 힌트: if (human === computer) return 'draw';
+                if(human === computer){
+                    return 'draw';
+                }
+
+                /*
+                 * TODO: 승패를 판정하세요
+                 *
+                 * 방법 1: if-else 문 사용
+                 *   if (human === 'scissors' && computer === 'paper') return 'win';
+                 *   if (human === 'rock' && computer === 'scissors') return 'win';
+                 *   ... (나머지 경우도 작성)
+                 *
+                 * 방법 2: 객체를 활용한 승리 조건 매핑 (추천!)
+                 *   - winMap 객체: 각 선택이 "무엇을 이기는지" 저장
+                 *   - winMap[human] === computer 이면 사용자 승리
+                 */
+                const winMap = {
+                    scissors: 'paper',   // 가위는 보를 이김
+                    rock: 'scissors',    // 바위는 가위를 이김
+                    paper: 'rock'        // 보는 바위를 이김
+                };
+                
+
+                // TODO: winMap을 활용해서 승패를 판정하고 반환하세요
+                // 힌트: return winMap[human] === computer ? 'win' : 'lose';
+                return winMap[human] === computer ? 'win' : 'lose';
+            },
+
+
+            /*
+             * ┌─────────────────────────────────────────────────────────────┐
+             * │  [도우미 함수들] - 이미 완성되어 있습니다!                   │
+             * │                                                             │
+             * │  아래 함수들은 화면 업데이트를 담당합니다.                   │
+             * │  코드를 읽고 어떻게 동작하는지 이해해보세요.                 │
+             * └─────────────────────────────────────────────────────────────┘
+             */
+
+            // 점수 표시 업데이트
+            updateScore(player, result = null) {
+                const score = player === 'human' ? this.humanScore : this.computerScore;
+                const el = document.getElementById(`${player}Score`);
+
+                el.textContent = `${score.win}승 ${score.draw}무 ${score.lose}패`;
+                el.className = 'score' + (result ? ` ${result}` : '');
+            },
+
+            // 선택 이미지 표시
+            showChoice(player, choice) {
+                const prefix = player === 'human' ? 'human' : 'computer';
+                const el = document.getElementById(`${player}Display`);
+                el.innerHTML = `<img src="../img/${prefix}_${choice}.gif" alt="${choice}">`;
+            },
+
+            // 선택 버튼 하이라이트
+            highlightChoice(choice) {
+                document.querySelectorAll('.choice').forEach((el, i) => {
+                    const choices = ['scissors', 'rock', 'paper'];
+                    el.classList.toggle('selected', choices[i] === choice);
+                });
+            },
+
+            // 선택 영역 초기화
+            resetDisplay() {
+                document.getElementById('humanDisplay').innerHTML = '?';
+                document.getElementById('computerDisplay').innerHTML = '?';
+                document.querySelectorAll('.choice').forEach(el => el.classList.remove('selected'));
+            },
+
+            // 결과 메시지 표시
+            showResult(message, resultClass = '') {
+                const el = document.getElementById('result');
+                el.textContent = message;
+                el.className = 'result' + (resultClass ? ` ${resultClass}` : '');
+            },
+
+
+            /*
+             * ┌─────────────────────────────────────────────────────────────┐
+             * │  [실습 6] 타이머 업데이트 함수                               │
+             * │                                                             │
+             * │  1초마다 호출되어 경과 시간을 표시합니다.                    │
+             * │  시:분:초 형식으로 표시해야 합니다. (예: 01:02:03)           │
+             * └─────────────────────────────────────────────────────────────┘
+             */
+            updateTimer() {
+                // TODO: 경과 시간(초)을 1 증가시키세요
+                // 힌트: this.seconds++;
+                this.seconds++;
+
+                /*
+                 * TODO: 초를 시:분:초로 변환하세요
+                 *
+                 * 변환 공식:
+                 *   - 시간(h) = 전체 초 / 3600 (소수점 버림)
+                 *   - 분(m) = (전체 초 % 3600) / 60 (소수점 버림)
+                 *   - 초(s) = 전체 초 % 60
+                 *
+                 * 힌트: Math.floor()를 사용하세요
+                 */
+                const h = Math.floor(this.seconds / 3600); // TODO: 시간 계산
+                const m = Math.floor((this.seconds % 3600) / 60); // TODO: 분 계산
+                const s = this.seconds % 60; // TODO: 초 계산
+
+
+                /*
+                 * 화면에 표시 (2자리 형식: 01:02:03)
+                 *
+                 * padStart(2, '0') 설명:
+                 *   - 문자열 앞에 '0'을 붙여서 최소 2자리로 만듭니다
+                 *   - 예: "5".padStart(2, '0') → "05"
+                 *   - 예: "12".padStart(2, '0') → "12" (이미 2자리라 변화 없음)
+                 */
+                document.getElementById('timer').textContent =
+                    [h, m, s].map(n => String(n).padStart(2, '0')).join(':');
+            }
+        };
+
+    </script>
+</body>
+</html>
