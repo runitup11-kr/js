@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>TO do Mini</h1>
+    
+    <div class="container">
+
+        <div class="input-area">
+            <input type="text" id="todoInput" placeholder="할 일 입력">
+            <button id="addBtn" >추가</button>
+            <ul id="todoList"></ul>
+        </div>
+    </div>
+    <script>
+        const todos = []; // 할일 목록 저장
+
+        //버튼 클릭 이벤트 연결
+        //버튼을 누를때 입력한 텍스트 가져오기
+        document.getElementById("addBtn").addEventListener('click',() =>{
+            const text = document.getElementById("todoInput").value.trim();
+            
+
+            //아무것도 입력 안했을때는
+            // "입력값 없음" 출력
+            if(text === ""){
+                console.log("입력값 없음!");
+                return;
+            }
+            console.log(text); 
+
+            //입력값이 정상일때 배열에 추가하기
+            todos.push(text);
+            render();
+            console.log(todos);
+            
+        })
+        //화면에 리스트 그리기
+        function render(){
+            const list = document.getElementById('todoList');
+
+            // 인덱스 값 받아서 삭제 버튼 기능 만들기
+            list.innerHTML = todos.map((todo,index) =>`
+            <li>
+                ${todo}
+                <button data-index = "${index}">삭제</button>
+            </li>
+            `).join('');
+
+            document.getElementById("todoInput").value ="";
+            //버튼 클릭할때만 실행해서
+            // 인덱스 값 삭제
+            document.getElementById("todoList").addEventListener('click',(e) =>{
+                if(e.target.tagName === 'BUTTON'){
+                    const index = e.target.dataset.index;
+                    todos.splice(index, 1);
+                    render();
+                }
+            });
+        }
+
+        
+        
+    </script>
+</body>
+</html>
