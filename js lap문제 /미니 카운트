@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1 id="count">0</h1>
+    <div id="message"></div>
+    <button id="incBtn">+</button>
+    <button id="decBtn">-</button>
+    
+    <script>
+        document.getElementById('incBtn').addEventListener('click',() =>{
+            
+
+        let count = parseInt(document.getElementById('count').innerText);
+            count = count +1;
+            if(count > 10){
+                return;
+            }
+            document.getElementById('count').innerText = count;
+            document.getElementById('message').innerText = '증가!';
+        })
+        document.getElementById('decBtn').addEventListener('click',() =>{
+            
+        let count1 = parseInt(document.getElementById('count').innerText);
+            count1 = count1 -1;
+        if(count1 < 0 ){
+            return;
+        }
+        document.getElementById('count').innerText = count1;
+        document.getElementById('message').innerText = '감소';
+
+    })
+    </script>
+</body>
+</html>
