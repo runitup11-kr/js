@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <h1>🍕 맛집 기록</h1>
+        
+        <div class="input-area">
+            <input type="text" id="storeName" placeholder="가게 이름을 입력하세요!!">
+            <select id="storeRating">
+                <option value="5">⭐⭐⭐⭐⭐</option>
+                <option value="4">⭐⭐⭐⭐</option>
+                <option value="3">⭐⭐⭐</option>
+                <option value="2">⭐⭐</option>
+                <option value="1">⭐</option>
+            </select>
+            <button id="addBtn">기록하기</button>
+        </div>
+        
+        <div id="bestGrid" class="grid-area"></div>
+    </div>
+    <style>
+        body{
+            background-color: #f0f2f5;
+             font-family: 'pretendard' , sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {text-align: center; color: #ff4757;}
+        /* 입력창 정렬 */
+        .input-area{
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        input, select, button {
+            padding:  15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .grid-area{
+            display: grid;
+            grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+            gap: 20px;
+        }
+        /* 카드 스타일 */
+        .store-card{
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }   
+        .store-card:hover {transform:translateY(-5px) ;}
+
+        .store-card h3 { margin-bottom: 10px; color: #2f3542; }
+
+    .delete-btn {
+        margin-top: 15px;
+        width: 100%;
+        background: #f1f2f6;
+        border: none;
+        padding: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        color: #ff4757;
+    }
+    </style>
+
+    <script>
+const storeApp = { // 1. 이름을 storeApp으로 통일
+    stores: [], // 데이터 담을 객체 생성
+
+    init() {
+        // localStorage에서 store라는 이름의 데이터를 가져오고
+        // 만약 저장된 데이터가 있다면 , 다시 js 객체로 조립해서 넣는다
+        const saved = localStorage.getItem('store');
+        if (saved) this.stores = JSON.parse(saved);
+
+        // '기록하기' 버튼에 클릭 감지기를 달고 , 클릭하면 addStore 함수 실행
+        document.getElementById('addBtn').addEventListener('click', () => this.addStore());
+        // 켜지자마자 화면을 한번 보여줌
+        this.render();
+    },
+
+    addStore() {
+        // HTML 입력창 ,  별점 선택창 돔 요소 가져오기
+        const nameInput = document.getElementById('storeName');
+        const ratingInput = document.getElementById('storeRating');
+        
+        // 예외처리
+        // 이름이 비어있거나 공백이면 경고를 띄움
+        if (!nameInput.value.trim()) return alert("이름을 입력하세요 !!");
+
+        // 가게 객체 만들기: 데이터의 고유 이름을 만드는 과정
+        const newStore = {
+            id: Date.now(), // 1/1000초 단위 시간을 ID로 써서 중복 방지
+            name: nameInput.value, // 입력창 글자
+            rating: parseInt(ratingInput.value) // 선택한 별점(문자)를 숫자(int) 로 바꿈
+        };
+
+        // 객체에 새로운 데이터를 넣고 , localStorage에 저장
+        this.stores.push(newStore);
+        this.save();
+        
+        // 다음 입력을 위해 입력창을 비우고 화면을 새로 그림
+        nameInput.value = '';
+        this.render();
+    },
+    // 삭제 및 저장
+    deleteStore(id) {
+        this.stores = this.stores.filter(s => s.id !== id);
+        this.save();
+        this.render();
+    },
+
+    save() {
+        // localStorage에는 문자열만 들어가기 때문에
+        // JSON.stringify로 압축해서 저장
+        localStorage.setItem('store', JSON.stringify(this.stores));
+    },
+
+    // 화면 그리기 파트
+    render() {
+        const grid = document.getElementById('bestGrid'); // 화면을 그릴 종이 가져오기
+
+        // 객체가 비었을 때의 예외 처리
+        if (this.stores.length === 0) {
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">아직 기록된 가게가 없어요.</p>';
+            return;
+        }
+        // map 함수로 데이터를 HTML로 변신시킴
+            grid.innerHTML = this.stores.map(store => `
+                <div class="store-card">
+                <h3>${store.name}</h3>
+                <div class="stars">${'⭐'.repeat(store.rating)}</div> <button class="delete-btn" onclick="storeApp.deleteStore(${store.id})">삭제하기</button>
+                </div>
+            `).join(''); // 배열 사이의 쉼표를 없애고 하나의 문자열로 합쳐서 HTML에 꽂는다
+        }
+    };
+
+    storeApp.init(); // 3. 이름 통일
+    </script>
+</body>
+</html>
