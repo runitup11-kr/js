@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>심플 가계부</title>
+    <style>
+        body { background: #f4f7f6; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; }
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .item-list { list-style: none; padding: 0; }
+        .item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .total { margin-top: 20px; text-align: right; font-size: 1.2rem; font-weight: bold; color: #e67e22; }
+        .delete-btn { color: #ff4757; cursor: pointer; margin-left: 10px; border: none; background: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💸 가계부</h1>
+        <div class="input-group">
+            <input type="text" id="itemName" placeholder="항목 (예: 치킨)">
+            <input type="number" id="itemAmount" placeholder="금액 (예: 20000)">
+            <button id="addBtn">지출 기록</button>
+        </div>
+        
+        <ul id="historyList" class="item-list"></ul>
+        
+        <div class="total">총 지출: <span id="totalAmount">0</span>원</div>
+    </div>
+
+    <script>
+        const moneyApp = {
+            history : [],
+
+            init(){
+                //1. 저장된 데이터 불러오는 함수 호출
+                this.load();
+                //2. 버튼 클릭 시 추가 함수 실행되게 연결
+                document.getElementById('addBtn').addEventListener('click',() => this.addMoney());
+                //3. 화면 그리는 함수 호출
+                this.render();
+
+            },
+            addMoney() {
+                //1. 입력창 두개 가져오기
+                const name = document.getElementById('itemName').value;
+                const amountStr = document.getElementById('itemAmount').value;
+                if(name === '' || amountStr === ''){
+                    alert("기록을 모두 적어주세요!")
+                    return;
+                }
+                //2. 숫자로 바꾸기
+                const amount = parseInt(amountStr);
+
+                //3. 객체 만들기
+                const newItem = {
+                    id: Date.now(),
+                    name: name,
+                    amount: amount
+                };
+                
+                //4. 객체에 넣기
+                this.history.push(newItem)
+
+                //5. 저장하고 다시 화면 출력 / 입력창 비우기
+                this.save();
+                this.render();
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemAmount').value = '';
+            },
+            render() {
+                const list = document.getElementById('historyList');
+                const totalDisplay = document.getElementById('totalAmount');
+                //1. 목록 그리기 (map사용)
+
+                list.innerHTML = this.history.map(item =>`
+                <li class="item">
+                    <span>${item.name}</span>
+                    <span>${item.amount}원</span>
+                    <button class="delete-btn" onclick="moneyApp.delete(${item.id})">삭제</button>
+                </li>
+                `).join('');
+
+                //2. 총액 계산하기 (핵심)
+                let total = 0;
+                this.history.forEach(item => total += item.amount);
+
+                //3. 총액 화면에 표시하기
+                totalDisplay.textContent = total;
+            },
+            save() {
+            //1. 로컬스토리지에 저장하기
+               localStorage.setItem('moneyData',JSON.stringify(this.history));
+            },
+
+            load() {
+            //2. 로컬스토리지에서 가져오기
+            const saved = localStorage.getItem('moneyData');
+            //   만약 데이터가 있다면 글자를 다시 객체 배열로 조립해서 this.history에 넣어주기
+            if(saved){
+                this.history = JSON.parse(saved);
+            }
+                
+           },
+           
+           delete(id){
+           //3. filter를 써서 해당 id만 제외한 새 배열 만들기
+           this.history = this.history.filter(item => item.id !== id);
+           //4. 저장하고 화면 출력!
+            this.save();
+            this.render();
+
+           }
+
+        
+        }
+        //프로그램 시작
+        moneyApp.init();
+    </script>
+</body>
+</html>
