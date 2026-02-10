@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>웨이팅 매니저</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <h1>🍽️ 맛집 대기 명단</h1>
+        
+        <div class="input-group">
+            <input type="text" id="guestInput" placeholder="손님 성함을 입력하세요">
+            <button id="addBtn">대기 등록</button>
+        </div>
+
+        <ul id="waitingList"></ul>
+
+        <div class="status-bar">
+            <span>현재 대기: <b id="totalCount">0</b>팀</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+        <style>
+        body {
+    background-color: #f8f9fa;
+    font-family: 'Pretendard', sans-serif;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+}
+
+.app-container {
+    width: 350px;
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+h1 {
+    font-size: 1.4rem;
+    color: #ff6b6b;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    outline: none;
+}
+
+input:focus { border-color: #ff6b6b; }
+
+button#addBtn {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+ul { list-style: none; padding: 0; }
+
+/* 리스트 한 줄(손님) */
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    background: #fff;
+    transition: background 0.2s;
+}
+
+li:hover { background: #fff5f5; }
+
+/* 입장 완료 버튼 */
+.entry-btn {
+    background: #51cf66;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.status-bar {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #666;
+    text-align: right;
+}
+    </style>
+    <script>
+        const waitingApp = {
+            guests: [],
+
+            init(){
+                document.getElementById('addBtn').addEventListener('click',() => this.addGuest());
+                document.getElementById('guestInput').addEventListener('keypress', (e) =>{
+                    if(e.key === "Enter") this.addGuest();
+                })
+            },
+
+            addGuest(){
+                const inputEl = document.getElementById("guestInput");
+                const name = inputEl.value;
+                if(name.trim() !== ""){
+                    this.guests.push({id: Date.now(),name: name});
+                }
+                inputEl.value ="";
+                this.render(); 
+
+            },
+
+            render(){
+                const licon = document.getElementById("waitingList");
+                licon.innerHTML = "";
+
+                this.guests.forEach(guests => {
+                   const guestsli  = document.createElement("li");
+                    guestsli.textContent = guests.name;
+                    const btn = document.createElement('button');
+                    btn.textContent = "입장";
+
+                    btn.onclick = () =>{
+                        this.guests = this.guests.filter(g => g.id !== guests.id);
+                        this.render();
+                    }
+                    guestsli.appendChild(btn);
+
+                    licon.appendChild(guestsli);
+                });
+                document.getElementById('totalCount').textContent = this.guests.length;
+            }
+        }
+        waitingApp.init();
+
+    </script>
+</body>
+</html>
