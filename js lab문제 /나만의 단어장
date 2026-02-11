@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>나만의 단어장</title>
+    <style>
+        body { background: #f0f2f5; font-family: sans-serif; display: flex; justify-content: center; padding: 50px; }
+        .app-container { width: 400px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #4a90e2; }
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        button#addBtn { padding: 10px; background: #4a90e2; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        
+        #wordList { list-style: none; padding: 0; }
+        .card { 
+            background: #fff; border: 2px solid #4a90e2; padding: 15px; border-radius: 10px; 
+            margin-bottom: 10px; cursor: pointer; text-align: center; position: relative;
+            transition: 0.3s;
+        }
+        .card:hover { transform: scale(1.02); }
+        .card .meaning { display: none; color: #e67e22; font-weight: bold; margin-top: 10px; }
+        /* 퀴즈 정답을 보여줄 때 쓸 클래스 */
+        .card.show .meaning { display: block; }
+        
+        .delete-btn { position: absolute; top: 5px; right: 10px; color: #ff7675; cursor: pointer; border: none; background: none; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>📚 My 단어장</h1>
+        <div class="input-group">
+            <input type="text" id="wordInput" placeholder="단어 (예: Apple)">
+            <input type="text" id="meaningInput" placeholder="뜻 (예: 사과)">
+            <button id="addBtn">단어 추가하기</button>
+        </div>
+        <ul id="wordList"></ul>
+    </div>
+
+    <script>
+        const wordApp = {
+            words: localStorage.getItem('myWords') ? JSON.parse(localStorage.getItem('myWords')): [],
+        
+        init(){
+            document.getElementById('addBtn').addEventListener('click',() => {this.addWord()});
+            document.getElementById('wordInput').addEventListener('keypress', (e) =>{
+                if(e.key === "Enter") this.addWord();
+            });
+            this.render();
+        },
+
+        addWord(){
+            const wInput = document.getElementById('wordInput');
+            const mInput = document.getElementById('meaningInput');
+
+            const wordText = wInput.value;
+            const meaningText = mInput.value;
+
+            if(wInput.value.trim() !=="" && mInput.value.trim() !==""){
+                this.words.push({
+                    id: Date.now(),
+                    word: wordText,
+                    meaning: meaningText,
+                });
+
+                wInput.value = "";
+                mInput.value = "";
+
+                this.render();
+                this.save();
+
+                }
+            },
+            render(){
+                const WordLi = document.getElementById('wordList');
+                WordLi.innerHTML = "";
+
+                this.words.forEach(word =>{
+                    const wordsli = document.createElement('li');
+                    wordsli.className = 'card';
+                
+                    wordsli.innerHTML = `
+                    <span>${word.word}</span>
+                    <div class="meaning">${word.meaning}</div>
+                    <button class="delete-btn">x</button>
+                    `;
+
+                    wordsli.querySelector('.delete-btn').onclick = (e) =>{
+                        e.stopPropagation();
+                        this.words = this.words.filter(w => w.id !== word.id);
+                        this.save();
+                        this.render();
+                    }
+                    wordsli.onclick = () =>{
+                        wordsli.classList.toggle('show');
+                    }
+                    WordLi.appendChild(wordsli);
+                });
+                
+
+            },
+
+            save(){
+                localStorage.setItem('myWords',JSON.stringify(this.words));
+
+            }
+            
+        }
+
+
+    wordApp.init();
+
+    </script>
+</body>
+</html>
