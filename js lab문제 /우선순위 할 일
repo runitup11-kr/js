@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="app-container" style="width: 350px; padding: 20px; background: #fff; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+    <h2>🎯 우선순위 할 일</h2>
+    <div class="input-group" style="display: flex; gap: 5px; margin-bottom: 20px;">
+        <input type="text" id="todoInput" placeholder="할 일을 입력하세요" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+        <button id="addBtn" style="padding: 10px; background: #00b894; color: white; border: none; border-radius: 8px; cursor: pointer;">추가</button>
+    </div>
+
+    <ul id="todoList" style="list-style: none; padding: 0;"></ul>
+    <script>
+const todoApp = {
+    todos: [],
+
+    init() {
+        document.getElementById('addBtn').onclick = () => this.addTodo();
+        this.render();
+    },
+
+    addTodo() {
+        const input = document.getElementById('todoInput');
+        if (input.value.trim() !== "") {
+            this.todos.push({
+                id: Date.now(),
+                text: input.value,
+                priority: 1 // 1: 보통, 2: 중요, 3: 매우중요
+            });
+            input.value = "";
+            this.render();
+        }
+    },
+
+    // 별 클릭 시 우선순위 변경 로직 (1 -> 2 -> 3 -> 1)
+    changePriority(id) {
+        this.todos = this.todos.map(todo => {
+            if (todo.id === id) {
+                let nextP = todo.priority + 1;
+                // 여기서 else if의 느낌을 살짝 맛볼 수 있죠!
+                if (nextP > 3) nextP = 1; 
+                return { ...todo, priority: nextP };
+            }
+            return todo;
+        });
+        this.render();
+    },
+
+    render() {
+        const listEl = document.getElementById('todoList');
+        listEl.innerHTML = "";
+
+        this.todos.forEach(todo => {
+            const li = document.createElement('li');
+            li.style.padding = "15px";
+            li.style.marginBottom = "10px";
+            li.style.borderRadius = "10px";
+            li.style.cursor = "pointer";
+            li.style.display = "flex";
+            li.style.justifyContent = "space-between";
+
+            // --- [여기서부터 적재적소 else if 미션!] ---
+            // 힌트: todo.priority 숫자에 따라 li의 배경색(backgroundColor)을 바꿔보세요.
+            if (todo.priority === 3) {
+                li.style.backgroundColor = "#ff7675"; // 매우 중요 (빨강)
+                li.innerHTML = `<span>🔥 ${todo.text}</span>`;
+            } 
+            else if (todo.priority === 2) {
+                li.style.backgroundColor = "#ffeaa7"; // 중요 (노랑)
+                li.innerHTML = `<span>⭐️ ${todo.text}</span>`;
+            } 
+            else {
+                li.style.backgroundColor = "#f1f2f6"; // 보통 (회색)
+                li.innerHTML = `<span>📌 ${todo.text}</span>`;
+            }
+
+            // 클릭하면 우선순위 변경
+            li.onclick = () => this.changePriority(todo.id);
+
+            listEl.appendChild(li);
+        });
+    }
+};
+
+todoApp.init();
+    </script>
+</div>
+</body>
+</html>
