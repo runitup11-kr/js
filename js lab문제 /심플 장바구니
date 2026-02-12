@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>심플 장바구니</title>
+    <style>
+        body { background: #f4f7f6; font-family: 'Pretendard', sans-serif; display: flex; justify-content: center; padding: 40px; }
+        .cart-container { width: 400px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
+        h1 { font-size: 1.5rem; color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .input-group { display: flex; gap: 8px; margin-bottom: 25px; }
+        input { flex: 1; padding: 12px; border: 2px solid #eee; border-radius: 10px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #6c5ce7; }
+        button#addBtn { background: #6c5ce7; color: white; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+
+        ul { list-style: none; padding: 0; }
+        .cart-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; background: #fff; border: 1px solid #f0f0f0; 
+            border-radius: 12px; margin-bottom: 10px; transition: 0.2s;
+        }
+        .item-info { flex: 1; }
+        .item-name { font-weight: 600; color: #2d3436; }
+        
+        .quantity-control { display: flex; align-items: center; gap: 10px; background: #f8f9fa; padding: 5px 10px; border-radius: 8px; }
+        .qty-btn { border: none; background: none; cursor: pointer; font-size: 1.1rem; color: #6c5ce7; font-weight: bold; }
+        .qty-num { font-weight: bold; min-width: 20px; text-align: center; }
+
+        .total-section { 
+            margin-top: 20px; padding-top: 20px; border-top: 2px dashed #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .total-label { font-size: 1.1rem; font-weight: bold; color: #333; }
+        .total-price { font-size: 1.4rem; font-weight: 800; color: #6c5ce7; }
+        
+        .delete-item { margin-left: 15px; color: #ff7675; cursor: pointer; border: none; background: none; font-size: 1.2rem; }
+button#clearBtn {
+    background: #ff7675;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+    </style>
+</head>
+<body>
+    <div class="cart-container">
+        <h1>🛒 장바구니</h1>
+        
+        <div class="input-group">
+            <input type="text" id="itemInput" placeholder="상품명을 입력하세요 (예: 사과)">
+            <button id="addBtn">추가</button>
+            <button id="clearBtn">전체 삭제</button>
+        </div>
+
+        <ul id="cartList">
+            </ul>
+
+        <div class="total-section">
+            <span class="total-label">총 수량</span>
+            <span class="total-price"><span id="totalQty">0</span>개</span>
+        </div>
+    </div>
+
+    <script>
+        const cartApp = {
+            item: localStorage.getItem('myCart') ? JSON.parse(localStorage.getItem('myCart')): [],
+
+            init(){
+                document.getElementById('addBtn').addEventListener('click',() => {this.addItem();})
+                document.getElementById('clearBtn').addEventListener('click',() =>{this.clearAll();})
+                document.getElementById('itemInput').addEventListener('keypress',(e) =>{
+                    if(e.key === "Enter") this.addItem();
+                });
+                this.render();
+            },
+            addItem(){
+                const input = document.getElementById('itemInput');
+                const itemName = input.value;
+                if(input.value.trim() !== ""){
+                    this.item.push({
+                        id:Date.now(),
+                        name: itemName,
+                        quantity: 1
+                    });
+                    input.value = "";
+                    this.render();
+                    this.save();
+                }
+            },
+            changeQty(id,delta){
+                //1 map 이용해서 배열 전체 새로 짜기
+                this.item = this.item.map(product =>{
+                    //2. 만약 내가 클릭한 상품을 찾으면?
+                    if(product.id === id){
+                        
+                        // ... Spread연산자
+                        return {...product, 
+                            quantity: Math.max(
+                                1, product.id === id ? product.quantity + delta : product.quantity)                          
+                        }
+                    
+                    }
+                    return product;
+                });
+
+                this.render();
+                this.save();
+
+            },
+            render(){
+                const listEl = document.getElementById('cartList');
+                listEl.innerHTML = "";
+
+                this.item.forEach(product =>{
+                    const li = document.createElement('li');
+                    li.className = 'cart-item';
+                
+                li.innerHTML = `
+                    <div class="item-info">
+                        <span class="item-name">${product.name}</span>
+                    </div>
+                    <div class="quantity-control">
+                        <button class="qty-btn minus">-</button>
+                        <span class="qty-num">${product.quantity}</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                    <button class="delete-item">🗑️</button>
+                    `;
+
+                    li.querySelector('.minus').onclick = () => this.changeQty(product.id, -1);
+                    li.querySelector('.plus').onclick = () => this.changeQty(product.id, 1);
+                    li.querySelector('.delete-item').onclick = () => {
+                        this.item = this.item.filter(p => p.id !== product.id);
+                        this.render();
+                        this.save();
+                    };
+
+                    listEl.appendChild(li);
+                });
+                const total = this.item.reduce((sum,p) => sum + p.quantity,0);
+                document.getElementById('totalQty').textContent = total;
+
+            },
+            save(){
+                localStorage.setItem('myCart', JSON.stringify(this.item));
+            },
+            clearAll(){
+                if(!confirm("전부 비울까요?")) return;
+
+                this.item = [];
+                this.render();
+                this.save();
+            }
+        }
+        cartApp.init();
+    </script>
+</body>
+</html>
