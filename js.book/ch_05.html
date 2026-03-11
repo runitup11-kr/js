@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+
+    <script>
+        let x = parseInt(prompt("비교할 첫 번째 숫자: "));
+        let y = parseInt(prompt("비교 할 두번째 숫자: "));
+
+        function addNum(a,b){
+            if(a > b){
+                return document.write(`${a}가 ${b}보다 큽니다 `);
+            }
+            else if(a === b){
+                return document.write("두 수가 같습니다. ");
+            }else{
+                return document.write(`${b}가 ${a}보다 큽니다. `);
+            }
+        }
+        addNum(x,y);
+    </script>
+    
+</body>
+</html>
