@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div style="width: 350px; padding: 20px; background: #f0f2f5; border-radius: 15px; border: 2px solid #3498db; text-align: center;">
+    <h2 style="color: #2980b9;">🍀 행운의 숫자 맞추기</h2>
+    <h1 style="font-size: 2.5rem;">💰 <span id="myPoint">100</span>P</h1>
+
+    <div style="margin: 20px 0;">
+        <p>1~5 중 하나를 고르세요! (배팅: 10P)</p>
+        <button onclick="gameApp.play(1)">1</button>
+        <button onclick="gameApp.play(2)">2</button>
+        <button onclick="gameApp.play(3)">3</button>
+        <button onclick="gameApp.play(4)">4</button>
+        <button onclick="gameApp.play(5)">5</button>
+    </div>
+
+    <ul id="logList" style="list-style: none; padding: 0; text-align: left; max-height: 150px; overflow-y: auto;"></ul>
+    <button onclick="gameApp.reset()" style="margin-top: 10px; font-size: 12px;">기록 초기화</button>
+</div>
+
+<script>
+    const gameApp = {
+        logs: [],
+
+        init(){
+            this.load();
+        },
+
+        play(userNumber){
+            if(this.point < 10){
+                alert("포인트가 부족합니다! ;-;");
+                return;
+            }
+            
+            const randomNumber = Math.floor(Math.random() * 5 ) + 1;
+            let message = "";
+            let pointChange = 0;
+
+            if(userNumber === randomNumber){
+                message = `!! 정답은 ${randomNumber}!`;
+                pointChange = 30; // 맞추면 30 획득
+            }else{
+                message = `ㅠㅠ! 정답은 ${randomNumber}였습니다.`;
+                pointChange = -10; // 틀리면 -10
+
+            }
+            this.point += pointChange;
+            this.logs.unshift({
+                id:Date.now(),
+                result:message,
+                type: pointChange > 0 ? "WIN" : "LOSE"
+            });
+
+            this.save();
+            this.render();
+        },
+
+        save(){
+            localStorage.setItem('gamePoint',this.point);
+            localStorage.setItem('gameLogs',JSON.stringify(this.logs));
+
+        },
+
+        load(){
+            const savedPoint = localStorage.getItem('gamePoint');
+            const savedLogs = localStorage.getItem('gameLogs');
+
+            this.point = savedPoint ? Number(savedPoint) : 100;
+            this.logs = savedLogs ? JSON.parse(savedLogs) : [];
+            this.render();
+        },
+
+        reset(){
+            this.logs = [];
+            this.point = 100;
+            this.save();
+            this.render();
+        },
+
+        render(){
+            document.getElementById('myPoint').textContent = this.point;
+            const listEl = document.getElementById('logList');
+            listEl.innerHTML = "";
+
+            this.logs.forEach(log =>{
+                const li = document.createElement('li');
+                li.style.padding = "5px";
+                li.style.fontSize = "13px";
+                li.style.borderBottom = "1px solid #ddd";
+
+                if(log.type === 'WIN'){
+                    li.style.color = "red";
+                    li.style.fontWeight = "bold";
+                }else{
+                    li.style.color = "blue";
+                }
+
+                li.textContent = log.result;
+                listEl.appendChild(li);
+            });
+        }
+    };
+    gameApp.init();
+
+</script>
+    
+</body>
+</html>
