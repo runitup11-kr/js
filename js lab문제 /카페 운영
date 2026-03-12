@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div style="width: 350px; padding: 20px; background: #fffcf0; border-radius: 15px; border: 2px solid #e67e22;">
+    <h2 style="color: #e67e22;">☕️ 카페 주문 대기판</h2>
+    
+    <div style="margin-bottom: 15px;">
+        <button onclick="cafeApp.order('아메리카노')">☕️ 아메</button>
+        <button onclick="cafeApp.order('카페라떼')">🥛 라떼</button>
+        <button onclick="cafeApp.order('딸기스무디')">🍓 딸기</button>
+    </div>
+
+    <ul id="orderList" style="list-style: none; padding: 0;"></ul>
+    <h3 style="border-top: 1px solid #ddd; padding-top: 10px;">총 주문: <span id="totalCount">0</span>잔</h3>
+</div>
+    
+<script>
+    const cafeApp = {
+        orders: [],
+
+        init(){
+            this.load();
+        },
+
+        order(menuName){
+            const newOrder = {
+                id: Date.now(),
+                name:menuName,
+                status: '준비중' // 처음엔 무조건 준비중
+            };
+            this.orders.push(newOrder);
+            this.save();
+            this.render();
+
+        },
+        remove(id){
+            this.orders = this.orders.filter(o => o.id !== id);
+            this.save();
+            this.render(); 
+        },
+
+        toggleStatus(id){
+            this.orders = this.orders.map(order => {
+                if(order.id === id){
+                    const newStatus = order.status === '준비중' ? '✅ 완료됨' : '준비중';
+                    return {...order, status: newStatus};
+                }
+                return order;
+            });
+            this.save();
+            this.render();
+        },
+
+        save(){
+            localStorage.setItem('cafeOrders',JSON.stringify(this.orders));
+        },
+
+        load(){
+            const saved = localStorage.getItem('cafeOrders');
+            this.orders = saved ? JSON.parse(saved) : [];
+            this.render();
+        },
+
+        render(){
+            const listEl = document.getElementById('orderList');
+            listEl.innerHTML = ""; //일단 싹 비운다
+
+            this.orders.forEach(order => {
+                const li = document.createElement('li');
+                li.style.background = "#fff";
+                li.style.padding = "10px";
+                li.style.marginBottom = "5px";
+                li.style.borderBottom = "1px solid #eee";
+                li.style.display = "flex";
+                li.style.justifyContent = "space-between";
+
+                li.innerHTML = `
+                <span class="status-text" style="cursor:pointer">${order.name} (${order.status})</span>
+                <button class="del-btn">완료</button>
+                `;
+
+                if(order.status === '✅ 완료됨'){
+                    li.style.opacity = "0.5";
+                    li.style.textDecoration = "line-through";
+                }else{
+                    li.style.opacity = "1";
+                    li.style.textDecoration = "none";
+                }
+
+                li.querySelector('.del-btn').onclick = () => this.remove(order.id);
+                li.querySelector('.status-text').onclick = () => this.toggleStatus(order.id);
+
+                listEl.appendChild(li);
+            });
+
+            document.getElementById('totalCount').textContent = this.orders.length;
+        }
+    };
+
+    cafeApp.init();
+</script>
+</body>
+</html>
