@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>현재 시각 <span id="current" class="display"></span></p>
+    <script>
+        
+        function displayNow(){
+            let currentTime = new Date();
+
+            let hour = currentTime.getHours();
+            let min = currentTime.getMinutes();
+            let sec = currentTime.getSeconds();
+
+            let ampm = "오전";
+
+            if(hour >= 12){
+                ampm = "오후";
+            }
+
+            document.querySelector("#current").innerHTML = `${ampm} ${hour}:${min}:${sec}`;
+        }
+        setInterval(displayNow, 1000);
+
+    </script>
+    
+</body>
+</html>
