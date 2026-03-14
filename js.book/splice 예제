@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let study = ['html', 'css', 'js','jquery','react','nodejs']
+
+        let js = study.splice(2);
+        document.write(`반환된 배열: ${js}<br>`);
+        document.write(`변경된 배열: ${study}`);
+        document.write(`<hr>`);
+
+        let jquery = js.splice(1,1);
+        document.write(`반환된 배열: ${jquery}<br>`);
+        document.write(`변경된 배열: ${js}`);
+        document.write(`<hr>`);
+
+        let modernjs = js.splice(1,0,'typeScript');
+        document.write(`반환된 배열: ${modernjs}<br>`);
+        document.write(`변경된 배열: ${js}`);
+        document.write(`<hr>`);
+    </script>
+</body>
+</html>
