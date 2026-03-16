@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app" style="text-align: center; padding: 20px;">
+    <h2>🌈 오늘의 무드</h2>
+    
+    <div id="colorPicker">
+        <button onclick="moodApp.setColor('#fab1a0')" style="background:#fab1a0; width:30px; height:30px;"></button>
+        <button onclick="moodApp.setColor('#74b9ff')" style="background:#74b9ff; width:30px; height:30px;"></button>
+        <button onclick="moodApp.setColor('#55efc4')" style="background:#55efc4; width:30px; height:30px;"></button>
+    </div>
+
+    <input type="text" id="moodNote" placeholder="지금 기분은 어때요?">
+    <button onclick="moodApp.add()">기록하기</button>
+
+    <hr>
+    <div id="moodList" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
+</div>
+
+<script>
+    const moodApp = {
+        selectedColor: "#ffffff",
+        moods: [],
+
+        setColor(color){
+            this.selectedColor = color;
+            document.body.style.backgroundColor = color;
+        },
+        add(){
+            const note = document.getElementById('moodNote').value;
+            if(note === ""){
+                alert("기분을 적어주세요!");
+                return;
+            }
+            const newMood = {
+                note:note,
+                color: this.selectedColor,
+                date: new Date().toLocaleString()
+            };
+            this.moods.push(newMood);
+
+            document.getElementById('moodNote').value = ""
+
+            this.render();
+        },
+render() {
+    const list = document.getElementById('moodList');
+    list.innerHTML = "";
+
+    this.moods.forEach((item) => { // 1. 반복문 안에서 각 카드를 만듬
+        const card = document.createElement('div');
+        card.style.position = "relative"; // 버튼 위치를 잡기 위해 필요
+        card.style.backgroundColor = "white";
+        card.style.borderLeft = `10px solid ${item.color}`;
+        card.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
+        card.style.padding = "15px";
+        card.style.margin = "10px";
+        card.style.borderRadius = "8px";
+        card.style.minWidth = "150px"; // 카드 크기를 최소한으로 유지
+
+        // 카드 내용 + 삭제 버튼 HTML
+        card.innerHTML = `
+            <small style="color: gray;">${item.date}</small>
+            <p style="font-weight: bold; margin: 5px 0;">${item.note}</p>
+            <button class="del-btn" style="position: absolute; top: 5px; right: 8px; cursor: pointer; border: none; background: none; color: #ccc;">✕</button>
+        `;
+
+        // 2. 버튼에 삭제 기능 연결하기 
+        const delBtn = card.querySelector('.del-btn');
+        delBtn.onclick = () => {
+            if (confirm("이 기록을 삭제할까요?")) {
+                this.delete(item.date);
+            }
+        };
+
+        list.appendChild(card);
+    });
+},
+        delete(targetDate){
+            this.moods = this.moods.filter(item => item.date !== targetDate);
+            this.render();
+        }
+    }
+</script>
+</body>
+</html>
