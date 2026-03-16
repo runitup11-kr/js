@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>나만의 단어 퀴즈</title>
+</head>
+<body style="text-align: center; background: #fdf6e3; padding-top: 50px;">
+
+    <div style="width: 350px; margin: 0 auto; padding: 20px; background: white; border-radius: 15px; border: 2px solid #2aa198;">
+        <h2>📚 나만의 퀴즈장</h2>
+        
+        <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed #ddd;">
+            <input type="text" id="wordInput" placeholder="단어 (ex: Apple)">
+            <input type="text" id="meanInput" placeholder="뜻 (ex: 사과)">
+            <button onclick="wordApp.add()">추가</button>
+        </div>
+
+        <div id="quizArea" style="background: #eee; padding: 15px; border-radius: 10px;">
+            <h3 id="question">문제를 내주세요!</h3>
+            <input type="text" id="answerInput" placeholder="뜻을 입력하세요">
+            <button onclick="wordApp.check()" >정답 확인</button>
+            <br><br>
+            <button onclick="wordApp.quiz()" style="background-color: #2aa198; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">문제 내기!</button>
+            <br><br>
+            <button onclick="wordApp.quiz()" style="background: #2aa198; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">다음 문제</button>
+        </div>
+    </div>
+<script>
+    const wordApp = {
+        words: [],
+
+        init(){
+            document.getElementById('meanInput').addEventListener('keyup',(e) => {
+                if(e.key === 'Enter') this.add();
+            });
+
+            document.getElementById('answerInput').addEventListener('keyup',(e) =>{
+                if(e.key === 'Enter') this.check();
+            })
+        },
+        add(){
+            const word = document.getElementById('wordInput').value;
+            const mean = document.getElementById('meanInput').value;
+            
+            if(word !== "" && mean !== ""){
+                const newVocal = {word : word, mean: mean};
+                this.words.push(newVocal);
+
+                document.getElementById('wordInput').value = "";
+                document.getElementById('meanInput').value = "";
+            }else{
+                alert("단어와 뜻을 모두 입력해주세요!");
+            }
+            if(this.words.length === 1){
+                this.quiz();
+            }
+
+    
+            
+        },
+        quiz(){
+            if(this.words.length === 0){
+                alert("단어를 먼저 등록해주세요!");
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * this.words.length);
+
+            const quizWord = this.words[randomIndex];
+
+            document.getElementById('question').textContent = quizWord.word;
+
+            this.currentAnswer = quizWord.mean;
+        },
+
+        check(){
+            const answer = document.getElementById('answerInput').value;
+            if(answer === this.currentAnswer){
+                alert("정답!");
+                this.quiz();
+            }else{
+                alert("오답 ㅠㅠ");
+            }
+        }
+        
+    }
+    wordApp.init();
+
+</script>
+</body>
+</html>
