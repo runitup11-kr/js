@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="game" style="text-align: center; padding: 50px;">
+    <h1 id="scoreDisplay">점수: 0</h1>
+    <h2 id="resultMessage" style="height: 30px; color: #ff4757;"></h2>
+    <button onclick="clickerGame.hit()" style="font-size: 30px; padding: 20px;">🔥 클릭!!</button>
+    
+    <div style="margin-top: 30px;">
+        <button onclick="clickerGame.buyUpgrade()">강화 (비용: 10)</button>
+        <button onclick="clickerGame.buyAuto()">자동 클릭기 (비용: 50)</button>
+    </div>
+</div>
+<script>
+    const clickerGame = {
+        score:0,
+        power:1,
+        level: 0,
+
+        hit(){
+            this.score += this.power;
+            this.render();
+        },
+
+        buyUpgrade(){
+            // 핵심 로직
+            // 1. 점수 확인
+            if(this.score < 10){
+                document.getElementById("resultMessage").textContent = "❌ 점수가 부족합니다!";
+                return;
+            }
+            // 강화 파괴 알림
+            if(this.level >= 7){
+                if(!confirm("7단계 이상부터는 강화 실패 시 아이템이 '파괴' 될 수 있습니다. 계속하시겠습니까?")){
+                    return;
+                }
+            }
+            // 점수 차감 및 확률 계산
+            this.score -= 10;
+            let successRate = 1.0 - (this.level * 0.1);
+            if(successRate < 0.1) successRate = 0.1; // 최소 성공 확률 10%
+            
+            const roll = Math.random();
+            const resultEl = document.getElementById("resultMessage");
+
+            if(roll < successRate){
+                this.level += 1;
+                this.power += 2;
+                resultEl.textContent = `✨ 강화 성공! (+${this.level})`;
+                resultEl.style.color = "#2ed573";
+                
+            }else{
+                if(this.level >= 7){
+                    if(Math.random() < 0.5) {
+                        this.level = 0;
+                        this.power = 1;
+                        resultEl.textContent = "파괴 ㅋㅋ";
+                        resultEl.style.color = "#ff4757";
+
+                    }else{
+                        resultEl.textContent = "아직 살아있어요!"
+                        resultEl.style.color = "#ffa502";
+                    }
+                }else{
+                    resultEl.textContent = "강화 실패 ㅠㅠ";
+                    resultEl.style.color = "#747d8c";
+                }
+            }
+            this.render();
+
+        },
+        render(){
+            document.getElementById("scoreDisplay").textContent = `점수 : ${this.score} | 클릭 : ${this.power} | 강화 : ${this.level}` ;
+        },
+        
+        buyAuto(){
+            if(this.score >= 50){
+                this.score -=50;
+
+                setInterval(() =>{
+                    this.hit();
+                },1000);
+
+                alert("자동 클릭기 구매! 이제 가만히 있어도 점수가 올라요!")
+            }else{
+                alert("50점이 필요합니다!");
+            }
+            this.render();
+        }
+
+    }
+    
+
+</script>
+    
+</body>
+</html>
