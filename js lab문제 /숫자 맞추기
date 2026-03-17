@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app" style="text-align: center; padding: 30px;">
+    <h2>🔢 숫자 맞추기 게임 (1~100)</h2>
+    <p id="message">숫자를 입력하고 시작하세요!</p>
+    
+    <input type="number" id="userGuess" placeholder="숫자 입력">
+    <button onclick="guessApp.check()">확인</button>
+    
+    <div id="historyList" style="margin-top: 20px; color: gray;"></div>
+    <button onclick="guessApp.reset()" style="margin-top: 20px;">다시 시작</button>
+</div>
+
+<script>
+    const guessApp = {
+        answer: Math.floor(Math.random() * 100) + 1,
+        attempts: 0,
+        history: [],
+
+        init(){
+            const inputEl = document.getElementById('userGuess');
+
+            inputEl.addEventListener('keyup',(e) =>{
+                if(e.key === 'Enter'){
+                    this.check();
+                }
+            });
+            
+        },
+
+        check(){
+            const userGuess = Number(document.getElementById("userGuess").value);
+            const messageEl = document.getElementById("message");
+
+            this.attempts++;
+
+            if(userGuess === this.answer){
+                messageEl.textContent = `정답! ${this.attempts}번 만에 맞췄어요!`
+            }else if(userGuess > this.answer){
+                messageEl.textContent = "Down! 더 낮은 숫자를 입력하세요! ";
+            }else {
+                messageEl.textContent = "UP! 더 높은 숫자를 입력하세요!.";
+            }
+
+            this.history.push(userGuess);
+            this.render();
+        
+
+        },
+        reset(){
+            this.answer = Math.floor(Math.random() * 100) + 1;
+            this.attempts = 0;
+            this.history = [];
+
+            document.getElementById("message").textContent = "숫자를 입력하고 시작하세요!";
+            document.getElementById("userGuess").value = "";
+
+            this.render();
+        },
+        render(){
+            const historyEl = document.getElementById("historyList");
+            historyEl.textContent = `시도한 숫자들: ${this.history.join(",")}`;
+        }
+    }
+    guessApp.init();
+</script>
+</body>
+</html>
