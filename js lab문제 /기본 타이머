@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div style="text-align: center; padding: 50px;">
+        <h1 id="timerDisplay" style="font-size: 80px;">0</h1>
+        <p id="statusMessage" style="color: blue; font-weight: bold;">대기 중...</p>
+        
+        <button onclick="stopwatch.start()" id="startBtn" style="padding: 10px 20px;">시작!</button>
+        <button onclick="stopwatch.reset()" style="padding: 10px 20px;">리셋</button>
+    </div>
+    <script>
+        const stopwatch = {
+            count : 0,
+            timerId : null,
+        
+        start(){
+            if(this.timerId !== null) return;
+            document.getElementById('statusMessage').textContent = "시작!";
+
+            this.timerId = setInterval(()=>{
+                this.tick();
+            },1000);
+        },
+        tick(){
+            this.count += 1;
+            this.render();
+        },
+        stop(){
+            clearInterval(this.timerId);
+            this.timerId = null;
+
+        },
+        render(){
+            document.getElementById('timerDisplay').textContent = this.count;
+        },
+        reset(){
+            this.stop();
+            this.count = 0;
+            this.render();
+        }
+        
+            
+
+        }
+
+    </script>
+</body>
+</html>
