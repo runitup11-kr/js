@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div style="text-align: center; padding: 50px;">
+    <h2>🔢 숫자 맞추기 게임</h2>
+    <p id="message">1부터 100 사이의 숫자를 입력하세요!</p>
+    
+    <input type="number" id="userInput" style="padding: 10px;">
+    <button onclick="numberGame.guess()">확인</button>
+    <button onclick="numberGame.reset()">다시 시작</button>
+
+    <p>시도 횟수: <span id="countDisplay">0</span></p>
+</div>
+
+<script>
+    const numberGame = {
+        answer: Math.floor(Math.random() * 100) + 1,
+        attempts: 0 ,
+
+        guess(){
+            const input = document.getElementById('userInput');
+            const userVal = Number(input.value);
+            const msgEl = document.getElementById('message');
+
+            this.attempts += 1
+            if(userVal < this.answer){
+                msgEl.textContent = "Up!";
+            }else if(userVal > this.answer){
+                msgEl.textContent = "Down!";
+            }else{
+                msgEl.textContent = "정답!";
+            }
+            this.render();
+        },
+        render(){
+            document.getElementById('countDisplay').textContent = this.attempts;
+        },
+        reset(){
+            this.answer = Math.floor(Math.random() * 10) +1;
+            this.attempts = 0;
+            document.getElementById('message').textContent = "1부터 100 사이의 숫자를 입력하세요!";
+            this.render();
+        },
+
+    }
+
+</script>
+</body>
+</html>
