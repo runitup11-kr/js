@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* 중요 표시가 된 아이템 스타일 */
+        .important {
+            background-color: #fff9c4; /* 연한 노란색 */
+            font-weight: bold;
+        }
+        li {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .text-area {
+            flex-grow: 1;
+            cursor: pointer;
+        }
+        button {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center; padding: 50px;">
+        <h2>⭐ 중요도 순 투두리스트</h2>
+        <input type="text" id="todoInput" placeholder="할 일을 입력하세요">
+        <button onclick="priorityApp.add()">추가</button>
+        
+        <ul id="todoList" style="list-style:none; width:400px; margin: 20px auto; padding:0; text-align: left;">
+            </ul>
+    </div>
+    <script>
+        const priorityApp = {
+            todos: [],
+            nextId : 1,
+
+            add(){
+                const input = document.getElementById('todoInput');
+                if(input.value.trim() === "") return;
+
+                this.todos.push({
+                    id: this.nextId,
+                    text: input.value,
+                    isImportant: false
+                });
+                this.nextId ++;
+                input.value = "";
+                this.render();
+            },
+            toggleImportant(id){
+                const target = this.todos.find(todo => todo.id === id);
+
+                if(target){
+                    target.isImportant = !target.isImportant;
+                }
+                this.render();
+            },
+            remove(id){
+                this.todos = this.todos.filter(todos => todos.id !== id);
+                this.render();
+
+            },
+            render(){
+                const listEl = document.getElementById('todoList');
+                listEl.innerHTML = "";
+
+                this.todos.sort((a,b) => b.isImportant - a.isImportant);
+
+                this.todos.forEach(todo => {
+                    const li = document.createElement('li');
+                    
+                    if(todo.isImportant){
+                        li.classList.add('important');
+                    }
+
+                    const span = document.createElement('span');
+                    span.classname = "text-area";
+                    span.textContent = (todo.isImportant ? "⭐ " : "") + todo.text
+
+                    const impbtn = document.createElement('button');
+                    impbtn.textContent = "중요";
+                    impbtn.onclick = () => this.toggleImportant(todo.id);
+
+                    const delbtn = document.createElement('button');
+                    delbtn.textContent = "삭제";
+                    delbtn.onclick = () => this.toggleImportant(todo.id);
+
+                    li.appendChild(span);
+                    li.appendChild(impbtn);
+                    li.appendChild(delbtn);
+                    listEl.appendChild(li);
+
+                })
+            }
+        }
+
+    </script>
+</body>
+</html>
