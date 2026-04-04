@@ -81,7 +81,7 @@
                     }
 
                     const span = document.createElement('span');
-                    span.classname = "text-area";
+                    span.className = "text-area";
                     span.textContent = (todo.isImportant ? "⭐ " : "") + todo.text
 
                     const impbtn = document.createElement('button');
@@ -90,7 +90,7 @@
 
                     const delbtn = document.createElement('button');
                     delbtn.textContent = "삭제";
-                    delbtn.onclick = () => this.toggleImportant(todo.id);
+                    delbtn.onclick = () => this.remove(todo.id);
 
                     li.appendChild(span);
                     li.appendChild(impbtn);
