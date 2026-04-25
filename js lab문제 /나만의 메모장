@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>심플 포스트잇 메모장</title>
+    <style>
+        body { background-color: #f0f2f5; font-family: sans-serif; }
+        .container { max-width: 800px; margin: 50px auto; text-align: center; }
+        
+        /* 검색창 스타일 */
+        .search-box { margin-bottom: 30px; }
+        #searchInput { padding: 10px; width: 60%; border: 1px solid #ddd; border-radius: 5px; }
+
+        /* 메모지 정렬 */
+        #noteContainer { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 20px; 
+            padding: 20px;
+        }
+
+        /* 포스트잇 스타일 */
+        .note {
+            background-color: #fff740;
+            padding: 20px;
+            aspect-ratio: 1 / 1;
+            box-shadow: 5px 5px 7px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transform: rotate(-2deg);
+        }
+        .note:nth-child(even) { transform: rotate(2deg); }
+        .note .text { font-size: 1.1rem; border: none; background: transparent; resize: none; height: 80%; }
+        .note .del-btn { position: absolute; top: 5px; right: 5px; cursor: pointer; border: none; background: none; color: #ff5e5e; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📌 내 마음대로 메모장</h2>
+    
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="메모 검색..." oninput="noteApp.search()">
+    </div>
+
+    <div class="input-box">
+        <input type="text" id="noteInput" placeholder="새로운 메모 입력">
+        <button onclick="noteApp.add()">붙이기</button>
+    </div>
+
+    <div id="noteContainer">
+        </div>
+</div>
+
+<script>
+    const noteApp = {
+        notes: [],
+        searchTerm: "",
+
+        add(){
+            const input = document.getElementById('noteInput');
+            if(input.value.trim() === "") return;
+
+            const newNote = {
+                id : Date.now(),
+                text: input.value
+            };
+
+            this.notes.push(newNote);
+            input.value = "";
+            this.render();
+
+        },
+        search(){
+            const searchInput = document.getElementById('searchInput');
+            this.searchTerm = searchInput.value;
+            this.render();
+        },
+        remove(id){
+            this.notes = this.notes.filter(note => note.id !== id);
+            this.render();
+        },
+        render(){
+            const container = document.getElementById('noteContainer');
+            container.innerHTML = ""
+
+            const filteredNotes = this.notes.filter(note => {
+                return note.text.includes(this.searchTerm);
+            });
+
+            filteredNotes.forEach(note => {
+                const noteEl = document.createElement('div');
+                noteEl.className = 'note';
+                noteEl.innerHTML = `<button class="del-btn" onclick="noteApp.remove(${note.id})">X</button>
+                    <div class="text">${note.text}</div>
+                `;
+                container.appendChild(noteEl);
+            });
+        }
+    };
+
+</script>
+</body>
+</html>
