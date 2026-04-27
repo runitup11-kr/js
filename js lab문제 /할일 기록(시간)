@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타임 스탬프</title>
+    <style>
+        body { background: #2c3e50; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .timer-display { font-size: 5rem; margin: 20px; font-family: monospace; color: #f1c40f; }
+        .controls button { padding: 15px 30px; font-size: 1rem; cursor: pointer; border: none; border-radius: 5px; }
+        #startBtn { background: #27ae60; color: white; }
+        #stopBtn { background: #e74c3c; color: white; }
+        .log-list { max-width: 400px; margin: 30px auto; background: white; color: #333; border-radius: 10px; padding: 10px; list-style: none; }
+        li { border-bottom: 1px solid #eee; padding: 10px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <h1>⏱️ 집중력 기록기</h1>
+    <div class="timer-display" id="display">00:00</div>
+
+    <div class="controls">
+        <input type="text" id="taskInput" placeholder="무엇을 했나요?">
+        <button id="startBtn" onclick="timerApp.start()">시작</button>
+        <button id="stopBtn" onclick="timerApp.stop()">종료 & 기록</button>
+    </div>
+
+    <ul class="log-list" id="logList">
+        </ul>
+
+<script>
+    const timerApp = {
+        seconds: 0,
+        timerId: null,
+        logs: [],
+
+        start(){
+            if(this.timerId) return;
+
+
+            this.timerId = setInterval(() =>{
+                this.seconds++;
+                this.updateDisplay();
+            },1000);
+        },
+
+        stop() {
+            const taskInput = document.getElementById('taskInput');
+            if(!taskInput.value) { alert("할 일을 입력하세요!"); return; }
+
+            // 멈출 때는 clearInterval
+            clearInterval(this.timerId);
+            this.timerId = null;
+
+            // 기록 저장 
+            this.logs.push({
+                task: taskInput.value,
+                time: this.seconds
+            });
+
+            this.seconds = 0;
+            this.updateDisplay();
+            this.render();
+        },
+
+        updateDisplay(){
+            const display = document.getElementById('display');
+            const min = String(Math.floor(this.seconds / 60)).padStart(2,'0');
+            const sec = String(this.seconds % 60).padStart(2, '0');
+            display.textContent = `${min}:${sec}`;
+        },
+
+        render(){
+            const logList = document.getElementById('logList');
+            logList.innerHTML = "";
+            this.logs.forEach(log => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${log.task}</span> <b>${log.time}초</b>`;
+                logList.appendChild(li);
+            });
+        }
+    };
+
+</script>
+    
+</body>
+</html>
