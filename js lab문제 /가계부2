@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body { background-color: #f4f7f6; font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        .app-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; }
+        h2 { text-align: center; color: #333; }
+        
+        .total-section { background: #34495e; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
+        .total-amount { font-size: 2rem; font-weight: bold; }
+
+        .input-group { display: flex; gap: 5px; margin-bottom: 20px; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; outline: none; }
+        #itemInput { flex: 2; }
+        #amountInput { flex: 1; }
+        button { padding: 10px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #219150; }
+
+        ul { list-style: none; padding: 0; }
+        li { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; align-items: center; }
+        .item-name { flex-grow: 1; font-weight: 500; }
+        .item-price { color: #e74c3c; margin-right: 15px; }
+        .del-btn { background: #ecf0f1; color: #95a5a6; padding: 5px 8px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="app-card">
+    <h2>💸 나의 가계부</h2>
+    
+    <div class="total-section">
+        <p>오늘 쓴 총 금액</p>
+        <div class="total-amount"><span id="totalDisplay">0</span>원</div>
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="itemInput" placeholder="품목 (예: 커피)">
+        <input type="number" id="amountInput" placeholder="금액">
+        <button onclick="accountApp.add()" id="btnInput">추가</button>
+        <select id="typeInput">
+            <option value="expense">지출</option>
+            <option value="income">수입</option>
+        </select>
+    </div>
+
+    <ul id="expenseList">
+        </ul>
+</div>
+
+<script>
+    const accountApp = {
+        expenses: [],
+
+        add(){
+            const itemEl = document.getElementById('itemInput');
+            const amountEl = document.getElementById('amountInput');
+            const typeEl = document.getElementById('typeInput');
+
+            if(!itemEl.value || !amountEl.value){
+                alert("기록을 적어주세요!");
+                return;
+            }          
+
+            const newItem ={
+                id: Date.now(),
+                name: itemEl.value,
+                amount: parseInt(amountEl.value),
+                type : typeEl.value
+            };
+
+            this.expenses.push(newItem);
+
+            itemEl.value = "";
+            amountEl.value = "";
+            this.render();
+        },
+        remove(id){
+            this.expenses = this.expenses.filter(ex => ex.id !== id);
+
+            this.render();
+        },
+        render(){
+            const listEl = document.getElementById('expenseList');
+            const totalEl = document.getElementById('totalDisplay');
+            listEl.innerHTML = "";
+
+            let total = 0;
+            
+            this.expenses.forEach(ex => {
+                if (ex.type === 'income'){
+                    total += ex.amount;
+                }else{
+                    total -= ex.amount;
+                }
+
+                const li = document.createElement('li');
+
+                const sign = ex.type === 'income' ? '+' : '-';
+
+                const color = ex.type === 'income' ? '#2980b9' : '#e74c3c';
+
+                li.innerHTML = `
+                    <span class="item-name">${ex.name}</span>
+                    <span class="item-price" style="color: ${color}">${sign}${ex.amount.toLocaleString()}원</span>
+                    <button class="del-btn" onclick="accountApp.remove(${ex.id})">삭제</button>
+                `;
+                listEl.appendChild(li);
+            });
+
+            totalEl.textContent = total.toLocaleString();
+        }
+    }
+document.getElementById('amountInput').addEventListener('keypress',function(e){
+    if(e.key === "Enter"){
+        accountApp.add()
+    }
+})
+
+</script>
+</body>
+</html>
